@@ -29,6 +29,11 @@ jobs:
 
     - name: Run unit tests
       run: npm run test
+      env:
+        NODE_ENV: test
 
     - name: Run e2e tests
       run: npm run test:e2e
+      env:
+        NODE_ENV: test
+        COOKIE_KEY: github-actions-test-key
