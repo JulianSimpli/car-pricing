@@ -15,6 +15,10 @@ describe('Authentication System', () => {
     await app.init();
   });
 
+  afterEach(async () => {
+    await app.close();
+  });
+
   it('handles a signup request', () => {
     const email = 'asdd@asd.com'
     return request(app.getHttpServer())
@@ -22,25 +26,24 @@ describe('Authentication System', () => {
       .send({ email, password: 'asd' })
       .expect(201)
       .then((res) => {
-        const { id, email } = res.body
+        const { id, email: responseEmail } = res.body
         expect(id).toBeDefined()
-        expect(email).toBe(email)
+        expect(responseEmail).toBe(email)
       })
   });
 
   it('singup a new user then get the currently logged in user', async () => {
     const email = 'test@test.com'
 
-    const res = await request(app.getHttpServer())
+    const agent = request.agent(app.getHttpServer())
+
+    await agent
       .post('/auth/signup')
       .send({ email, password: 'asd' })
       .expect(201)
 
-    const cookie = res.get('Set-Cookie')
-
-    const { body } = await request(app.getHttpServer())
+    const { body } = await agent
       .get('/auth/whoami')
-      .set('Cookie', cookie)
       .expect(200)
 
     expect(body.email).toBe(email)
